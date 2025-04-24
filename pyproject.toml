@@ -3,11 +3,18 @@ name = "rest-framework"
 version = "0.1.0"
 description = ""
 authors = [
-    {name = "Your Name",email = "you@example.com"}
+    {name = "Kirill",email = "medny.kirill@yandex.ru"}
 ]
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
+    "django (>=5.2,<6.0)",
+    "djangorestframework (>=3.16.0,<4.0.0)",
+    "pillow (>=11.2.1,<12.0.0)",
+    "django-cors-headers (>=4.7.0,<5.0.0)",
+    "dotenv (>=0.9.9,<0.10.0)",
+    "psycopg2-binary (>=2.9.10,<3.0.0)",
+    "django-redis (>=5.4.0,<6.0.0)"
 ]
 
 
