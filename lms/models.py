@@ -1,7 +1,9 @@
 from django.db import models
+from django.conf import settings
 
 
 class Course(models.Model):
+    owner = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='courses', null=True,blank=True)
     name = models.CharField(max_length=255)
     preview = models.ImageField(upload_to="course_previews/", blank=True, null=True)
     description = models.TextField()
@@ -15,6 +17,7 @@ class Course(models.Model):
 
 
 class Lesson(models.Model):
+    owner = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='lessons', null=True,blank=True)
     course = models.ForeignKey(Course, on_delete=models.CASCADE, related_name="lessons")
     name = models.CharField(max_length=255)
     description = models.TextField()
