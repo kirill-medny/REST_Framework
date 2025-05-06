@@ -69,10 +69,11 @@ class SubscriptionAPIView(APIView):
 #             'view': self
 #         }
 class CourseListAPIView(generics.ListAPIView):  # Используем generics для простоты
-    queryset = Course.objects.all()
+    queryset = Course.objects.all().order_by("id")
     serializer_class = CourseSerializer
     pagination_class = CoursePaginator
     permission_classes = [permissions.IsAuthenticated]
+
 
 class CourseDetailAPIView(generics.RetrieveAPIView):
     queryset = Course.objects.all()

@@ -6,8 +6,6 @@ from users.serializers import SubscriptionSerializer
 from .validators import validate_youtube_link
 
 
-
-
 class LessonSerializer(serializers.ModelSerializer):
     class Meta:
         model = Lesson
@@ -32,6 +30,7 @@ class CourseSerializer(serializers.ModelSerializer):
     def get_lessons_count(self, obj):
         return obj.lessons.count()
 
+
 class CourseSerializer(serializers.ModelSerializer):
     lessons_count = serializers.SerializerMethodField()
     lessons = LessonSerializer(many=True, read_only=True)
@@ -50,4 +49,3 @@ class CourseSerializer(serializers.ModelSerializer):
         ].user  # Получить текущего пользователя из контекста запроса
         if user.is_authenticated:
             return obj.subscriptions.filter(user=user).exists()
-

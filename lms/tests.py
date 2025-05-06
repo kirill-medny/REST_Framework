@@ -21,7 +21,9 @@ class CourseTests(APITestCase):
 
     def test_course_list(self):
         self.client.force_authenticate(user=self.user)
-        url = reverse("course-list")  # Используйте имя, которое вы указали в urls.py
+        url = reverse(
+            "lms:course-list"
+        )  # Используйте имя, которое вы указали в urls.py
         response = self.client.get(url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(
@@ -41,7 +43,7 @@ class SubscriptionTests(APITestCase):
 
     def test_subscription_create(self):
         self.client.force_authenticate(user=self.user)
-        url = reverse("subscription")
+        url = reverse("lms:subscription")
         data = {"course_id": self.course.id}
         response = self.client.post(url, data)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -50,7 +52,7 @@ class SubscriptionTests(APITestCase):
     def test_subscription_delete(self):
         # Сначала создайте подписку
         self.client.force_authenticate(user=self.user)
-        url = reverse("subscription")
+        url = reverse("lms:subscription")
         data = {"course_id": self.course.id}
         self.client.post(url, data)
 

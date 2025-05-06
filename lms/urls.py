@@ -12,7 +12,9 @@ app_name = "lms"
 urlpatterns = [
     # path("", include(router.urls)),
     path("courses/", views.CourseListAPIView.as_view(), name="course-list"),
-    path('courses/<int:pk>/', views.CourseDetailAPIView.as_view(), name='course-detail'),
+    path(
+        "courses/<int:pk>/", views.CourseDetailAPIView.as_view(), name="course-detail"
+    ),
     path(
         "lessons/", views.LessonListCreateAPIView.as_view(), name="lesson-list-create"
     ),
