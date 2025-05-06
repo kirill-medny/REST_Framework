@@ -120,7 +120,6 @@ EMAIL_PORT = (
 EMAIL_USE_TLS = False
 EMAIL_USE_SSL = True
 EMAIL_HOST_USER = os.getenv("EMAIL_HOST_USER")  # Ваш логин
-EMAIL_HOST_USER = os.getenv("EMAIL_HOST_USER")  # Ваш логин
 EMAIL_HOST_PASSWORD = os.getenv("EMAIL_HOST_PASSWORD")  # Ваш пароль
 SERVER_EMAIL = os.getenv("EMAIL_HOST_USER")
 DEFAULT_FROM_EMAIL = os.getenv("EMAIL_HOST_USER")
