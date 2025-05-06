@@ -3,7 +3,26 @@ from rest_framework import serializers
 from rest_framework_simplejwt.serializers import AuthUser, TokenObtainPairSerializer
 from rest_framework_simplejwt.tokens import Token
 
-from users.models import Payment, User
+from users.models import Payment, Subscription, User
+
+
+class SubscriptionSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Subscription
+        fields = "__all__"
+
+    def validate(self, data):
+        user = data.get("user")
+        course = data.get("course")
+
+        if not user or not course:
+            raise serializers.ValidationError("Both user and course are required.")
+
+        # Проверьте, существует ли уже подписка
+        if Subscription.objects.filter(user=user, course=course).exists():
+            raise serializers.ValidationError("This subscription already exists.")
+
+        return data
 
 
 class UserSerializer(serializers.ModelSerializer):

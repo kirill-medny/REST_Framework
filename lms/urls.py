@@ -6,11 +6,15 @@ from lms import views
 
 app_name = "lms"
 
-router = DefaultRouter()
-router.register(r"courses", views.CourseViewSet, basename="course")
+# router = DefaultRouter()
+# router.register(r"courses", views.CourseViewSet, basename="course")
 
 urlpatterns = [
-    path("", include(router.urls)),
+    # path("", include(router.urls)),
+    path("courses/", views.CourseListAPIView.as_view(), name="course-list"),
+    path(
+        "courses/<int:pk>/", views.CourseDetailAPIView.as_view(), name="course-detail"
+    ),
     path(
         "lessons/", views.LessonListCreateAPIView.as_view(), name="lesson-list-create"
     ),
@@ -19,4 +23,5 @@ urlpatterns = [
         views.LessonRetrieveUpdateDestroyAPIView.as_view(),
         name="lesson-retrieve-update-destroy",
     ),
+    path("subscriptions/", views.SubscriptionAPIView.as_view(), name="subscription"),
 ]

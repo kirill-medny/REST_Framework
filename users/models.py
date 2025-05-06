@@ -77,3 +77,21 @@ class Payment(models.Model):
 
     def __str__(self):
         return f"Payment by {self.user} on {self.payment_date}"
+
+
+class Subscription(models.Model):
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="subscriptions"
+    )
+    course = models.ForeignKey(
+        "lms.Course", on_delete=models.CASCADE, related_name="subscriptions"
+    )
+
+    class Meta:
+        unique_together = (
+            "user",
+            "course",
+        )  # Один пользователь может подписаться на курс только один раз
+
+    def __str__(self):
+        return f"Subscription: {self.user} -> {self.course}"
