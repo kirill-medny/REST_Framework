@@ -3,9 +3,10 @@ from rest_framework import serializers
 from rest_framework_simplejwt.serializers import AuthUser, TokenObtainPairSerializer
 from rest_framework_simplejwt.tokens import Token
 
-from lms.serializers import CourseSerializer, LessonSerializer
 from users.models import Payment, Subscription, User
 
+from rest_framework import serializers
+from lms.models import Course, Lesson
 
 class SubscriptionSerializer(serializers.ModelSerializer):
     class Meta:
@@ -27,8 +28,8 @@ class SubscriptionSerializer(serializers.ModelSerializer):
 
 
 class PaymentSerializer(serializers.ModelSerializer):
-    paid_course = CourseSerializer(read_only=True)
-    paid_lesson = LessonSerializer(read_only=True)
+    paid_course = serializers.PrimaryKeyRelatedField(queryset=Course.objects.all(), required=False, allow_null=True)
+    paid_lesson = serializers.PrimaryKeyRelatedField(queryset=Lesson.objects.all(), required=False, allow_null=True)
 
     class Meta:
         model = Payment
