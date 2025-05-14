@@ -1,4 +1,6 @@
 from django.shortcuts import get_object_or_404
+from drf_spectacular.types import OpenApiTypes
+from drf_spectacular.utils import OpenApiParameter, extend_schema
 from rest_framework import generics, permissions, status, viewsets
 from rest_framework.decorators import permission_classes
 from rest_framework.response import Response
@@ -10,9 +12,6 @@ from users.models import Subscription
 from users.permissions import IsModerator, IsNotModerator, IsOwner
 
 from .paginators import CoursePaginator, LessonPaginator
-
-from drf_spectacular.utils import extend_schema, OpenApiParameter
-from drf_spectacular.types import OpenApiTypes
 
 
 class SubscriptionAPIView(APIView):
@@ -59,7 +58,8 @@ class CourseDetailAPIView(generics.RetrieveAPIView):
     serializer_class = CourseSerializer
     permission_classes = [permissions.IsAuthenticated]
 
-@extend_schema(tags=['Lessons'], description="List and create Lessons")
+
+@extend_schema(tags=["Lessons"], description="List and create Lessons")
 class LessonListCreateAPIView(generics.ListCreateAPIView):
     queryset = Lesson.objects.all()
     serializer_class = LessonSerializer
@@ -69,7 +69,8 @@ class LessonListCreateAPIView(generics.ListCreateAPIView):
     def perform_create(self, serializer):
         serializer.save(owner=self.request.user)
 
-@extend_schema(tags=['Lessons'], description="Retrieve, update and destroy Lesson")
+
+@extend_schema(tags=["Lessons"], description="Retrieve, update and destroy Lesson")
 class LessonRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Lesson.objects.all()
     serializer_class = LessonSerializer
@@ -84,17 +85,17 @@ class LessonRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView):
         return [permission() for permission in permission_classes]
 
 
-@extend_schema(tags=['Courses'], description="CRUD operations for courses")
+@extend_schema(tags=["Courses"], description="CRUD operations for courses")
 class CourseViewSet(viewsets.ModelViewSet):
     queryset = Course.objects.all()
     serializer_class = CourseSerializer
 
     def get_permissions(self):
-        if self.action in ['update', 'partial_update']:
+        if self.action in ["update", "partial_update"]:
             permission_classes = [permissions.IsAuthenticated, IsModerator | IsOwner]
-        elif self.action == 'destroy':
+        elif self.action == "destroy":
             permission_classes = [permissions.IsAuthenticated, IsOwner, ~IsModerator]
-        elif self.action == 'create':
+        elif self.action == "create":
             permission_classes = [permissions.IsAuthenticated, ~IsModerator]
         else:
             permission_classes = [permissions.IsAuthenticated]

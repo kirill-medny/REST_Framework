@@ -8,8 +8,8 @@ load_dotenv(override=True)
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-STRIPE_SECRET_KEY = os.environ.get('STRIPE_SECRET_KEY')
-STRIPE_PUBLISHABLE_KEY = os.environ.get('STRIPE_PUBLISHABLE_KEY')
+STRIPE_SECRET_KEY = os.environ.get("STRIPE_SECRET_KEY")
+STRIPE_PUBLISHABLE_KEY = os.environ.get("STRIPE_PUBLISHABLE_KEY")
 
 MEDIA_URL = "/media/"
 MEDIA_ROOT = os.path.join(BASE_DIR, "media")
@@ -162,8 +162,8 @@ SIMPLE_JWT = {
 }
 
 SPECTACULAR_SETTINGS = {
-    'TITLE': 'LMS API',
-    'DESCRIPTION': 'API для системы LMS',
-    'VERSION': '1.0.0',
-    'SERVE_INCLUDE_SCHEMA': True,  # Включаем схему для отображения в браузере
+    "TITLE": "LMS API",
+    "DESCRIPTION": "API для системы LMS",
+    "VERSION": "1.0.0",
+    "SERVE_INCLUDE_SCHEMA": True,  # Включаем схему для отображения в браузере
 }

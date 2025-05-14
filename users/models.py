@@ -2,6 +2,7 @@ from django.conf import settings
 from django.contrib.auth.models import AbstractUser, BaseUserManager
 from django.db import models
 from django.utils.translation import gettext_lazy as _
+
 from lms.models import Course, Lesson
 
 
@@ -73,11 +74,17 @@ class Payment(models.Model):
     PAYMENT_METHOD_CHOICES = [
         ("cash", "Наличные"),
         ("transfer", "Перевод на счет"),
-        ('stripe', 'Stripe'),
+        ("stripe", "Stripe"),
     ]
-    payment_method = models.CharField(max_length=10, choices=PAYMENT_METHOD_CHOICES, default='stripe')
-    stripe_checkout_session_id = models.CharField(max_length=255, blank=True, null=True)  # ID сессии
-    payment_url = models.URLField(blank=True, null=True)  # Добавляем поле для URL оплаты
+    payment_method = models.CharField(
+        max_length=10, choices=PAYMENT_METHOD_CHOICES, default="stripe"
+    )
+    stripe_checkout_session_id = models.CharField(
+        max_length=255, blank=True, null=True
+    )  # ID сессии
+    payment_url = models.URLField(
+        blank=True, null=True
+    )  # Добавляем поле для URL оплаты
     is_paid = models.BooleanField(default=False)  # Поле для статуса оплаты
 
     def __str__(self):

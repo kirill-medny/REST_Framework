@@ -3,6 +3,7 @@ from django.conf import settings
 
 stripe.api_key = settings.STRIPE_SECRET_KEY  # Загружаем секретный ключ из settings
 
+
 def create_stripe_product(name: str, description: str) -> str:
     """
     Создает продукт в Stripe.
@@ -21,7 +22,8 @@ def create_stripe_product(name: str, description: str) -> str:
         print(f"Stripe error creating product: {e}")
         return None
 
-def create_stripe_price(product_id: str, amount: float, currency: str = 'usd') -> str:
+
+def create_stripe_price(product_id: str, amount: float, currency: str = "usd") -> str:
     """
     Создает цену в Stripe для продукта.
     :param product_id: ID продукта в Stripe.
@@ -42,7 +44,10 @@ def create_stripe_price(product_id: str, amount: float, currency: str = 'usd') -
         print(f"Stripe error creating price: {e}")
         return None
 
-def create_stripe_checkout_session(price_id: str, success_url: str, cancel_url: str) -> str:
+
+def create_stripe_checkout_session(
+    price_id: str, success_url: str, cancel_url: str
+) -> str:
     """
     Создает сессию Checkout в Stripe.
     :param price_id: ID цены в Stripe.
@@ -54,11 +59,11 @@ def create_stripe_checkout_session(price_id: str, success_url: str, cancel_url: 
         checkout_session = stripe.checkout.Session.create(
             line_items=[
                 {
-                    'price': price_id,
-                    'quantity': 1,
+                    "price": price_id,
+                    "quantity": 1,
                 },
             ],
-            mode='payment',  # Или 'subscription' для подписок
+            mode="payment",  # Или 'subscription' для подписок
             success_url=success_url,
             cancel_url=cancel_url,
         )
