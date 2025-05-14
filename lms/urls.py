@@ -1,16 +1,11 @@
-from django.urls import include, path
-from rest_framework.routers import DefaultRouter
-from rest_framework.urls import app_name
+from django.urls import path
 
 from lms import views
 
 app_name = "lms"
 
-# router = DefaultRouter()
-# router.register(r"courses", views.CourseViewSet, basename="course")
 
 urlpatterns = [
-    # path("", include(router.urls)),
     path("courses/", views.CourseListAPIView.as_view(), name="course-list"),
     path(
         "courses/<int:pk>/", views.CourseDetailAPIView.as_view(), name="course-detail"

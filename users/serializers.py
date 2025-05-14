@@ -1,8 +1,8 @@
-from django.contrib.auth.hashers import make_password
 from rest_framework import serializers
 from rest_framework_simplejwt.serializers import AuthUser, TokenObtainPairSerializer
 from rest_framework_simplejwt.tokens import Token
 
+from lms.models import Course, Lesson
 from users.models import Payment, Subscription, User
 
 
@@ -25,7 +25,22 @@ class SubscriptionSerializer(serializers.ModelSerializer):
         return data
 
 
+class PaymentSerializer(serializers.ModelSerializer):
+    paid_course = serializers.PrimaryKeyRelatedField(
+        queryset=Course.objects.all(), required=False, allow_null=True
+    )
+    paid_lesson = serializers.PrimaryKeyRelatedField(
+        queryset=Lesson.objects.all(), required=False, allow_null=True
+    )
+
+    class Meta:
+        model = Payment
+        fields = "__all__"
+
+
 class UserSerializer(serializers.ModelSerializer):
+    payments = PaymentSerializer(many=True, read_only=True)  # Добавляем поле платежей
+
     class Meta:
         model = User
         fields = [
@@ -93,12 +108,6 @@ class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
         token["first_name"] = user.first_name
 
         return token
-
-
-class PaymentSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Payment
-        fields = "__all__"
 
 
 class PublicUserSerializer(serializers.ModelSerializer):
