@@ -1,7 +1,6 @@
 from rest_framework import serializers
 
 from lms.models import Course, Lesson
-from users.serializers import SubscriptionSerializer
 
 from .validators import validate_youtube_link
 

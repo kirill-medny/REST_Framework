@@ -1,15 +1,13 @@
 from django.shortcuts import get_object_or_404
-from drf_spectacular.types import OpenApiTypes
-from drf_spectacular.utils import OpenApiParameter, extend_schema
+from drf_spectacular.utils import extend_schema
 from rest_framework import generics, permissions, status, viewsets
-from rest_framework.decorators import permission_classes
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from lms.models import Course, Lesson
 from lms.serializers import CourseSerializer, LessonSerializer
 from users.models import Subscription
-from users.permissions import IsModerator, IsNotModerator, IsOwner
+from users.permissions import IsModerator, IsOwner
 
 from .paginators import CoursePaginator, LessonPaginator
 
