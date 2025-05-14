@@ -4,6 +4,7 @@ from rest_framework_simplejwt.serializers import AuthUser, TokenObtainPairSerial
 from rest_framework_simplejwt.tokens import Token
 
 from users.models import Payment, Subscription, User
+from lms.serializers import CourseSerializer, LessonSerializer
 
 
 class SubscriptionSerializer(serializers.ModelSerializer):
@@ -25,7 +26,17 @@ class SubscriptionSerializer(serializers.ModelSerializer):
         return data
 
 
+class PaymentSerializer(serializers.ModelSerializer):
+    paid_course = CourseSerializer(read_only=True)
+    paid_lesson = LessonSerializer(read_only=True)
+
+    class Meta:
+        model = Payment
+        fields = "__all__"
+
 class UserSerializer(serializers.ModelSerializer):
+    payments = PaymentSerializer(many=True, read_only=True)  # Добавляем поле платежей
+
     class Meta:
         model = User
         fields = [
@@ -95,10 +106,7 @@ class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
         return token
 
 
-class PaymentSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Payment
-        fields = "__all__"
+
 
 
 class PublicUserSerializer(serializers.ModelSerializer):
