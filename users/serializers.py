@@ -114,3 +114,8 @@ class PublicUserSerializer(serializers.ModelSerializer):
     class Meta:
         model = Payment
         fields = ["id", "email", "first_name", "last_name", "phone", "city", "avatar"]
+
+
+class PaymentStatusResponse(serializers.Serializer):
+    status = serializers.CharField(help_text="Статус платежа в Stripe")
+    payment_id = serializers.IntegerField(help_text="ID платежа в системе")

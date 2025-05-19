@@ -1,10 +1,17 @@
 import stripe
 from django.conf import settings
+from rest_framework.exceptions import APIException
 
 stripe.api_key = settings.STRIPE_SECRET_KEY  # Загружаем секретный ключ из settings
 
 
-def create_stripe_product(name: str, description: str) -> str:
+class PaymentError(APIException):
+    status_code = 503
+    default_code = "payment_error"
+    default_detail = "Payment error occurred"
+
+
+def create_stripe_product(name: str, description: str) -> str | None:
     """
     Создает продукт в Stripe.
     :param name: Название продукта.
@@ -23,7 +30,9 @@ def create_stripe_product(name: str, description: str) -> str:
         return None
 
 
-def create_stripe_price(product_id: str, amount: float, currency: str = "usd") -> str:
+def create_stripe_price(
+    product_id: str, amount: float, currency: str = "usd"
+) -> str | None:
     """
     Создает цену в Stripe для продукта.
     :param product_id: ID продукта в Stripe.
@@ -47,7 +56,7 @@ def create_stripe_price(product_id: str, amount: float, currency: str = "usd") -
 
 def create_stripe_checkout_session(
     price_id: str, success_url: str, cancel_url: str
-) -> str:
+) -> str | None:
     """
     Создает сессию Checkout в Stripe.
     :param price_id: ID цены в Stripe.
