@@ -1,5 +1,10 @@
+from datetime import timedelta
+
+from django.contrib.auth import get_user_model
 from django.shortcuts import get_object_or_404
-from drf_spectacular.utils import extend_schema
+from django.utils import timezone
+from drf_spectacular.types import OpenApiTypes
+from drf_spectacular.utils import OpenApiParameter, extend_schema
 from rest_framework import generics, permissions, status, viewsets
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -7,9 +12,12 @@ from rest_framework.views import APIView
 from lms.models import Course, Lesson
 from lms.serializers import CourseSerializer, LessonSerializer
 from users.models import Subscription
-from users.permissions import IsModerator, IsOwner
+from users.permissions import IsModerator, IsNotModerator, IsOwner
 
 from .paginators import CoursePaginator, LessonPaginator
+from .tasks import send_course_update_email  # Импортируйте задачу Celery
+
+User = get_user_model()
 
 
 class SubscriptionAPIView(APIView):
@@ -98,3 +106,18 @@ class CourseViewSet(viewsets.ModelViewSet):
 
     def perform_create(self, serializer):
         serializer.save(owner=self.request.user)
+
+    def update(self, request, *args, **kwargs):
+        instance = self.get_object()  # Получите объект курса
+        serializer = self.get_serializer(instance, data=request.data)
+        serializer.is_valid(raise_exception=True)
+        self.perform_update(serializer)
+
+        # Проверяем, обновлялся ли курс в последние 4 часа
+        time_difference = timezone.now() - instance.last_updated
+        if time_difference > timedelta(hours=4):
+            # Отправка email всем пользователям, подписанным на курс
+            for user in User.objects.all():
+                send_course_update_email.delay(instance.id, user.id)
+
+        return Response(serializer.data)
