@@ -15,6 +15,7 @@ from payments.services import (
     create_stripe_price,
     create_stripe_product,
     stripe,
+    PaymentError,
 )
 from users.models import Payment, User
 from users.permissions import IsOwner
@@ -24,6 +25,7 @@ from users.serializers import (
     PublicUserSerializer,
     RegistrationSerializer,
     UserSerializer,
+    PaymentStatusResponse,
 )
 
 
@@ -65,11 +67,6 @@ class PaymentListAPIView(generics.ListAPIView):
 
     # Сортировка по дате
     ordering_fields = ["payment_date"]
-
-
-class PaymentStatusResponse(serializers.Serializer):
-    status = serializers.CharField(help_text="Статус платежа в Stripe")
-    payment_id = serializers.IntegerField(help_text="ID платежа в системе")
 
 
 class PaymentCreateAPIView(generics.CreateAPIView):

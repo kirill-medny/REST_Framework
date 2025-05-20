@@ -13,6 +13,7 @@ class Course(models.Model):
     name = models.CharField(max_length=255)
     preview = models.ImageField(upload_to="course_previews/", blank=True, null=True)
     description = models.TextField()
+    last_updated = models.DateTimeField(auto_now=True)
 
     class Meta:
         verbose_name = "Курс"

@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Обновление курса</title>
+</head>
+<body>
+    <h1>Здравствуйте, {{ user.first_name }} {{ user.last_name }}!</h1>
+    <p>Курс "{{ course.name }}" был обновлен.</p>
+    <p>Посмотрите новые материалы здесь: <a href="{{ course_url }}">{{ course.name }}</a></p>
+    <p>С уважением,
+    Команда LMS</p>
+</body>
+</html>
