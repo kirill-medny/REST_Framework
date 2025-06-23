@@ -1,4 +1,5 @@
 [project]
+[tool.poetry]
 name = "rest-framework"
 version = "0.1.0"
 description = ""

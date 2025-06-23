@@ -1,0 +1,124 @@
+name: Deploy to Server with Docker and Poetry
+
+on:
+  push:
+    branches:
+      - develop
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up Python 3.10
+        uses: actions/setup-python@v3
+        with:
+          python-version: 3.10
+      - name: Install Poetry
+        run: |
+          pip install poetry
+          poetry config virtualenvs.create false
+      - name: Install Dependencies and Run Tests
+        run: |
+          poetry install --no-interaction --no-ansi
+          poetry run python manage.py test  # Запуск тестов с помощью Poetry
+      - name: Build Static
+        run: |
+          poetry run python manage.py collectstatic --noinput  # Собираем статику с помощью Poetry
+
+  deploy:
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up Docker Buildx
+        id: buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: Login to GitHub Container Registry
+        if: github.repository_owner == github.actor
+        uses: docker/login-action@v2
+        with:
+          registry: ghcr.io
+          scope: ${{ github.repository_owner }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push Docker image
+        id: build_image
+        uses: docker/build-push-action@v4
+        with:
+          context: .
+          push: true
+          tags: ghcr.io/${{ github.repository_owner }}/${{ github.event.repository.name }}:latest
+
+      - name: Deploy to Server
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USERNAME }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          port: ${{ secrets.SSH_PORT }}
+          script: |
+            echo "Logging in to server"
+            cd /home/django/your_project_directory # Замените на ваш путь
+
+            # Остановите и удалите существующий контейнер
+            docker stop myproject_container || true
+            docker rm myproject_container || true
+
+            # Pull image
+            docker pull ghcr.io/${{ github.repository_owner }}/${{ github.event.repository.name }}:latest
+
+            # Запустите новый контейнер
+            docker run -d --name myproject_container \
+              -p 8000:8000 \
+              -e DJANGO_SECRET_KEY="${{ secrets.DJANGO_SECRET_KEY }}" \
+              -e DJANGO_DATABASE_NAME="${{ secrets.DJANGO_DATABASE_NAME }}" \
+              -e DJANGO_DATABASE_USER="${{ secrets.DJANGO_DATABASE_USER }}" \
+              -e DJANGO_DATABASE_PASSWORD="${{ secrets.DJANGO_DATABASE_PASSWORD }}" \
+              -e DJANGO_DATABASE_HOST="${{ secrets.SSH_HOST }}" # Use SSH_HOST for DB access
+              -e DJANGO_DEBUG=False # Enable debug on dev only
+              ghcr.io/${{ github.repository_owner }}/${{ github.event.repository.name }}:latest
+    ```
+
+  *   **Build and push Docker image:** Эта секция отвечает за сборку и отправку Docker-образа в GitHub Container Registry (GHCR).
+  *   **Deploy to Server:**
+      *   `docker stop myproject_container || true`: Останавливает существующий контейнер (если он есть).
+      *   `docker rm myproject_container || true`: Удаляет старый контейнер.
+      *   `docker pull ghcr.io/${{ github.repository_owner }}/${{ github.event.repository.name }}:latest`: Подтягивает (pull) новый образ из GHCR.
+      *   `docker run -d --name myproject_container ...`: Запускает новый контейнер с использованием подтянутого образа. Передаются все переменные окружения.  Важно, что  `DJANGO_DATABASE_HOST`  установлен в  `${{ secrets.SSH_HOST }}`.  **Убедитесь, что  `SSH_HOST`  в ваших Secrets содержит  *внутренний*  IP-адрес вашего сервера!**.
+
+**6. Настройка GitHub Secrets:**
+
+1.  **SSH_HOST:** Введите IP-адрес вашего сервера (внутренний IP, если применимо).
+2.  **SSH_USERNAME:**  Ваше имя пользователя для SSH (например, django).
+3.  **SSH_PRIVATE_KEY:**  Содержимое вашего *приватного* SSH-ключа (начинается с `-----BEGIN RSA PRIVATE KEY-----`).
+4.  **SSH_PORT:** Порт SSH (обычно 22).
+5.  **DJANGO_SECRET_KEY:**  Ваш секретный ключ Django.
+6.  **DJANGO_DATABASE_NAME:** Имя вашей базы данных.
+7.  **DJANGO_DATABASE_USER:** Имя пользователя базы данных.
+8.  **DJANGO_DATABASE_PASSWORD:** Пароль пользователя базы данных.
+
+**7. Настройка сервера (уточнения):**
+
+*   **Установите Docker и Docker Compose:**.
+*   **Убедитесь, что ваш пользователь Django (или другой пользователь, который вы используете для деплоя) имеет доступ к Docker.**  Это можно сделать, добавив пользователя в группу `docker`:
+
+    ```bash
+    sudo usermod -aG docker django
+    ```
+
+    После этого потребуется перелогиниться или перезагрузить сервер.
+*   **Создайте `/home/django/your_project_directory` (замените на ваш путь) на сервере.**
+*   **Создайте файл `.env` на сервере:**  Заполните его значениями (не забудьте  `DJANGO_ALLOWED_HOSTS`  и  `DJANGO_DEBUG=False`  на продакшене!).  **Убедитесь, что этот файл не попадет в репозиторий.**
+*   **Настройте Nginx и Gunicorn (если они еще не настроены):**  Выполните шаги из предыдущих ответов.
+
+**8.  Запуск и тестирование:**
+
+1.  **Запушите изменения в ветку `develop`.**
+2.  **Перейдите на вкладку "Actions" в вашем репозитории на GitHub** и наблюдайте за процессом сборки и деплоя.
+3.  **Если сборка и деплой прошли успешно,** откройте ваш сайт в браузере.  Проверьте все эндпоинты, убедитесь, что статика отображается корректно.
+4.  **Проверьте логи:**  Если что-то не работает, проверьте логи на сервере и в GitHub Actions.
+5.  **Убедитесь, что Celery и Celery Beat работают:** Проверьте, что задачи Celery выполняются, и Celery Beat планирует задачи.
+
