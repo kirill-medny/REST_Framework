@@ -16,12 +16,14 @@ jobs:
           python-version: 3.12
       - name: Install Poetry
         run: |
-          pip install poetry
+          curl -sSL https://install.python-poetry.org | python -
+          export PATH="$HOME/.poetry/bin:$PATH"  # Добавление poetry в PATH
+          echo "$HOME/.poetry/bin" >> $GITHUB_PATH # Make poetry available in subsequent steps
           poetry config virtualenvs.create false
       - name: Install Dependencies and Run Tests
         run: |
           poetry install --no-interaction --no-ansi
-
+          poetry run python manage.py test  # Запуск тестов с помощью Poetry
       - name: Build Static
         run: |
           poetry run python manage.py collectstatic --noinput  # Собираем статику с помощью Poetry
@@ -63,11 +65,11 @@ jobs:
             echo "Logging in to server"
             cd /home/django/your_project_directory # Замените на ваш путь
 
-            # Остановите и удалите существующий контейнер
+            # Остановите и удалите существующий контейнер (с проверкой на существование)
             docker stop myproject_container || true
             docker rm myproject_container || true
 
-            # Pull image
+            # Получите последнюю версию образа
             docker pull ghcr.io/${{ github.repository_owner }}/${{ github.event.repository.name }}:latest
 
             # Запустите новый контейнер
@@ -77,6 +79,6 @@ jobs:
               -e DJANGO_DATABASE_NAME="${{ secrets.DJANGO_DATABASE_NAME }}" \
               -e DJANGO_DATABASE_USER="${{ secrets.DJANGO_DATABASE_USER }}" \
               -e DJANGO_DATABASE_PASSWORD="${{ secrets.DJANGO_DATABASE_PASSWORD }}" \
-              -e DJANGO_DATABASE_HOST="${{ secrets.SSH_HOST }}" # Use SSH_HOST for DB access
-              -e DJANGO_DEBUG=False # Enable debug on dev only
+              -e DJANGO_DATABASE_HOST="${{ secrets.SSH_HOST }}" # Используйте SSH_HOST для доступа к БД
+              -e DJANGO_DEBUG=False # Отключаем отладку в продакшене
               ghcr.io/${{ github.repository_owner }}/${{ github.event.repository.name }}:latest
