@@ -80,7 +80,7 @@ jobs:
               -e DJANGO_DATABASE_HOST="${{ secrets.SSH_HOST }}" # Use SSH_HOST for DB access
               -e DJANGO_DEBUG=False # Enable debug on dev only
               ghcr.io/${{ github.repository_owner }}/${{ github.event.repository.name }}:latest
-    ```
+    
 
   *   **Build and push Docker image:** Эта секция отвечает за сборку и отправку Docker-образа в GitHub Container Registry (GHCR).
   *   **Deploy to Server:**
