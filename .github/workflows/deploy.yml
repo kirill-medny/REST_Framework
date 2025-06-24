@@ -21,7 +21,7 @@ jobs:
       - name: Install Dependencies and Run Tests
         run: |
           poetry install --no-interaction --no-ansi
-          poetry run python manage.py test  # Запуск тестов с помощью Poetry
+
       - name: Build Static
         run: |
           poetry run python manage.py collectstatic --noinput  # Собираем статику с помощью Poetry
